@@ -1,11 +1,10 @@
 <?php
 
-include 'plugins/simplehtmldom/simple_html_dom.php';
+// include 'plugins/simplehtmldom/simple_html_dom.php';
 
-$url = 'https://r3.vfsglobal.com/LithuaniaAppt/Account';
+$url = 'https://r3.vfsglobal.com/LithuaniaAppt/Account/RegisteredLogin?q=shSA0YnE4pLF9Xzwon/x/BbG1ynWEGIgVjaroQX6qrvIiR/QAez5H/lcf/Fbhh4KdEMrQPxf2kpKXIuZfrW4GQQwyJe7endrdFHlvW/ZIqU=';
 
 $autorization = new Autorization();
-// $captcha 	  = new Captcha();
 
 $cookie       = $autorization->getCookie();
 
@@ -117,21 +116,29 @@ class Autorization {
 	    curl_setopt($curl, CURLOPT_HTTPHEADER, $head);
 	    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
-	    $image_base64 = curl_exec($curl);
+		$image_base64 = curl_exec($curl);
+		$image_base64 = base64_encode(gzdecode($image_base64));
 
-	    // $captcha 	  = new Captcha();
-	    // $captcha_id   = $captcha->sendCaptcha(base64_encode($image_base64));
-    	// $captcha_resp = $captcha->getResponseCaptcha($captcha_id);
+	    $captcha 	  = new Captcha();
+	    $captcha_id   = $captcha->sendCaptcha($image_base64);
+		$captcha_resp = $captcha->getResponseCaptcha($captcha_id);
+		$captcha_resp = strtoupper($captcha_resp);
 
 	    $token = $this->getRequestVerificToken($page_autorize);
 	    $captcha_DeText_form = $this->getCaptchaDeText($page_autorize);
 
-	    /* Поля для авторизации */
+		/* Поля для авторизации */
+		
+		//admin1@mkkrsk.ru
+// Supermega1!
 
 		$post_data = [
-		    'EmailId'  => 'Nur.sab1@yandex.ru',
-		    'Password'  => 'Qwerty123!',
-		    'ConfirmPassword'  => 'Qwerty123!',
+			'Mission' => '',
+			'Country' => '',
+			'Center'  => '',
+		    'EmailId'  => 'admin1@mkkrsk.ru',
+		    'Password'  => 'Supermega1!',
+		    'ConfirmPassword'  => 'Supermega1!',
 		    'CaptchaInputText' => $captcha_resp,
 		    'CaptchaDeText'    => $captcha_DeText_form,
 		    '__RequestVerificationToken' => $token,
@@ -140,21 +147,44 @@ class Autorization {
 		    'reCaptchaPublicKey'     => '6Ld-Kg8UAAAAAK6U2Ur94LX8-Agew_jk1pQ3meJ1', 
 		];
 
-	    /////////////// Не понятная кодировка $image_base64 /////////////
-	    echo $image_base64;
+		/////////////// Не понятная кодировка $image_base64 /////////////
+		// header('Content-type: image/gif');
+		// echo '<img alt="Embedded Image" src="data:image/png;base64,' . $image_base64 . '">';
+		// echo $captcha_resp;exit;
+		// echo $image_base64;exit;
+	    // echo gzdecode($image_base64);
 	   	// echo $captcha;
 	   	// echo $token;
 	   	// echo $captcha_DeText_form;
 
 		/* Отправка постом */
+		$post_query = http_build_query($post_data);
 
-		curl_setopt($curl, CURLOPT_URL, $url);
+		$head = [
+			"accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+			"accept-encoding: gzip, deflate, br",
+			"accept-language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+			"cache-control: max-age=0",
+			"content-length: " . strlen($post_query),
+			"content-type: application/x-www-form-urlencoded",
+			"origin: https://r3.vfsglobal.com",
+			"referer: https://r3.vfsglobal.com/LithuaniaAppt/Account/RegisterUser?Length=7",
+			'sec-fetch-dest: document',
+    		'sec-fetch-mode: navigate',
+    		'sec-fetch-site: same-origin',
+			'accept-encoding: gzip, deflate, br',
+			"upgrade-insecure-requests: 1",
+		];
+
+		$url_post = 'https://r3.vfsglobal.com/LithuaniaAppt';
+
+		curl_setopt($curl, CURLOPT_URL, $url_post);
         curl_setopt($curl, CURLOPT_COOKIEFILE, $_SERVER['DOCUMENT_ROOT'] . "/COOKIE.txt");
         curl_setopt($curl, CURLOPT_USERAGENT, $this->headers['user_agent']);
         curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $post_query);
         curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $this->custom_headers);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $head);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
         /* Обязательно следуем редиректам */
@@ -162,17 +192,41 @@ class Autorization {
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
         $result_post = curl_exec($curl);
 
-		// echo $result_post;
-
+		echo gzdecode($result_post);
 
 	    if (curl_errno($curl)) {
 	        echo 'Ошибка запроса curl: ' . curl_error($curl);
 	        return false;
 	    } else {
+			echo 'Авторизация';
 	        return true;
-	    }
+		}
+		
+		$url_home = 'https://r3.vfsglobal.com/LithuaniaAppt/Home/Index';
 
-	    curl_close($curl);
+		$h = [
+			'sec-fetch-dest: document',
+    		'sec-fetch-mode: navigate',
+    		'sec-fetch-site: same-origin',
+			'accept-encoding: gzip, deflate, br',
+			'accept-language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+			'cache-control: max-age=0',
+			'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+		];
+
+		curl_setopt($curl, CURLOPT_URL, $url_home);
+		curl_setopt($curl, CURLOPT_POST, 0);
+        curl_setopt($curl, CURLOPT_COOKIEFILE, $_SERVER['DOCUMENT_ROOT'] . "/COOKIE.txt");
+		curl_setopt($curl, CURLOPT_USERAGENT, $this->headers['user_agent']);
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $h);
+		curl_setopt($curl, CURLOPT_REFERER, 'https://r3.vfsglobal.com/LithuaniaAppt/?q=shSA0YnE4pLF9Xzwon%2Fx%2FBbG1ynWEGIgVjaroQX6qrvIiR%2FQAez5H%2Flcf%2FFbhh4KdEMrQPxf2kpKXIuZfrW4GQQwyJe7endrdFHlvW%2FZIqU%3D');
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+
+		$res_get = curl_exec($curl);
+		echo $res_get;
+
+		curl_close($res_get);
     }
 
     public function sendFormAutorization($url, $post_data)
@@ -234,7 +288,7 @@ class Captcha {
 
     public function getResponseCaptcha($captcha_id) {
 
-    	$url = "https://rucaptcha.com/res.php?key=$this->postdata['key']&action=get&id=$captcha_id";
+    	$url = "https://rucaptcha.com/res.php?key=" . $this->postdata['key'] . "&action=get&id=$captcha_id";
 
     	/* Получение ответа каптчи от сервиса */
 
@@ -255,7 +309,7 @@ class Captcha {
 		        $captcha = explode('|', $result)[1];
 		        return $captcha;
 		    }
-		    echo $i . 'Капча ещё не распознана' . PHP_EOL;
+		    echo $result . PHP_EOL;
 		}
     }
 }
