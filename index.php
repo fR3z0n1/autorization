@@ -123,7 +123,7 @@ class Autorization {
 	    $captcha_id   = $captcha->sendCaptcha($image_base64);
 		$captcha_resp = $captcha->getResponseCaptcha($captcha_id);
 		$captcha_resp = strtoupper($captcha_resp);
-
+		echo $captcha_resp;
 	    $token = $this->getRequestVerificToken($page_autorize);
 	    $captcha_DeText_form = $this->getCaptchaDeText($page_autorize);
 
@@ -176,42 +176,50 @@ class Autorization {
 			"upgrade-insecure-requests: 1",
 		];
 
-		$url_post = 'https://r3.vfsglobal.com/LithuaniaAppt';
+		$url_post = 'https://r3.vfsglobal.com/LithuaniaAppt/?q=shSA0YnE4pLF9Xzwon%2Fx%2FBbG1ynWEGIgVjaroQX6qrvIiR%2FQAez5H%2Flcf%2FFbhh4KdEMrQPxf2kpKXIuZfrW4GQQwyJe7endrdFHlvW%2FZIqU%3D';
 
 		curl_setopt($curl, CURLOPT_URL, $url_post);
         curl_setopt($curl, CURLOPT_COOKIEFILE, $_SERVER['DOCUMENT_ROOT'] . "/COOKIE.txt");
         curl_setopt($curl, CURLOPT_USERAGENT, $this->headers['user_agent']);
         curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $post_query);
-        curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
+		curl_setopt($curl, CURLOPT_POSTFIELDS, $post_query);
+		curl_setopt($curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $head);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl, CURLOPT_COOKIEJAR, $_SERVER['DOCUMENT_ROOT'] . "/COOKIE.txt");
 
         /* Обязательно следуем редиректам */
 
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
         $result_post = curl_exec($curl);
 
-		echo gzdecode($result_post);
+		// echo gzdecode($result_post);
 
 	    if (curl_errno($curl)) {
 	        echo 'Ошибка запроса curl: ' . curl_error($curl);
-	        return false;
+	        // return false;
 	    } else {
 			echo 'Авторизация';
-	        return true;
+	        // return true;
 		}
-		
+
+
 		$url_home = 'https://r3.vfsglobal.com/LithuaniaAppt/Home/Index';
 
 		$h = [
+			'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+			'accept-encoding: gzip, deflate, br',
+			'cache-control: max-age=0',
+			'accept-language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+			'dnt: 1',
 			'sec-fetch-dest: document',
     		'sec-fetch-mode: navigate',
-    		'sec-fetch-site: same-origin',
-			'accept-encoding: gzip, deflate, br',
-			'accept-language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-			'cache-control: max-age=0',
-			'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+			'sec-fetch-site: same-origin',
+			'sec-fetch-user: ?1',
+			'upgrade-insecure-requests: 1',
 		];
 
 		curl_setopt($curl, CURLOPT_URL, $url_home);
@@ -221,12 +229,19 @@ class Autorization {
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $h);
 		curl_setopt($curl, CURLOPT_REFERER, 'https://r3.vfsglobal.com/LithuaniaAppt/?q=shSA0YnE4pLF9Xzwon%2Fx%2FBbG1ynWEGIgVjaroQX6qrvIiR%2FQAez5H%2Flcf%2FFbhh4KdEMrQPxf2kpKXIuZfrW4GQQwyJe7endrdFHlvW%2FZIqU%3D');
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
 
 		$res_get = curl_exec($curl);
-		echo $res_get;
+		echo gzdecode($res_get);
 
-		curl_close($res_get);
+	    if (curl_errno($curl)) {
+	        echo 'Ошибка запроса curl к index"у: ' . curl_error($curl);
+	        return false;
+	    } else {
+			echo 'Index the end';
+	        return true;
+		}
+
+		curl_close($curl);
     }
 
     public function sendFormAutorization($url, $post_data)
